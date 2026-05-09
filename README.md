@@ -1,2 +1,2 @@
-# LeaferStudiosCSS
-Work in progress CSS library
+# Crimson.js
+
