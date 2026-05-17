@@ -4,13 +4,15 @@
 
 CrimsonJS is an embeddable auth-gatekeeping widget for client websites.
 
-Setup:
-`<script>
-window.CrimsonConfig = {
-siteName: "Univa Dev",
-description: "Univa Dev is a STEM nonprofit."
-};
-</script>
+## Setup
 
+```html
+<script>
+  window.CrimsonConfig = {
+    siteName: "Univa Dev",
+    description: "Univa Dev is a STEM nonprofit."
+  };
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.yourdomain.com/crimson/js/crimson.min.js"></script>`
+<script src="https://cdn.jsdelivr.net/gh/eldiiarbekbolotov/crimsonjs@main/js/crimson.min.js"></script>
+```

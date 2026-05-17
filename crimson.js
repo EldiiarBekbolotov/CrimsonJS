@@ -271,18 +271,7 @@
         throw new Error("login_failed");
       }
 
-      var hasProfile = await userHasSiteProfile(client, result.data.user.id);
-      if (!hasProfile) {
-        setMessage(
-          form,
-          "This account is not registered for " +
-            siteName +
-            ". Use Signup to join.",
-          "error",
-        );
-        return;
-      }
-
+      syncSiteProfileFromLogin(client, result.data.user, email);
       unlockPage(result.data.user.id);
     } catch (error) {
       setMessage(form, "Login failed. Check your email and password.", "error");
@@ -338,6 +327,16 @@
       }
 
       if (signup.data && signup.data.user) {
+        var existingJoinedId = await tryJoinExistingAccount(
+          email,
+          password,
+          username,
+        );
+        if (existingJoinedId) {
+          unlockPage(existingJoinedId);
+          return;
+        }
+
         setMessage(
           form,
           "Check your email to finish signup, then return and log in.",
@@ -389,6 +388,21 @@
       return joined ? login.data.user.id : null;
     } catch (error) {
       return null;
+    }
+  }
+
+  async function syncSiteProfileFromLogin(client, user, email) {
+    try {
+      var metadata = user.user_metadata || {};
+      var username = cleanUsername(metadata.username || metadata.name || "");
+
+      if (!isValidUsername(username)) {
+        return false;
+      }
+
+      return ensureSiteProfile(client, user, username, email);
+    } catch (error) {
+      return false;
     }
   }
 
@@ -596,8 +610,10 @@
   function isConfigured() {
     return (
       /^https:\/\/.+\.supabase\.co\/?$/.test(supabaseUrl) &&
+      supabaseUrl.indexOf("YOUR_PROJECT_REF") === -1 &&
       supabaseAnonKey &&
-      supabaseAnonKey !== "sb_publishable_vjG8bFzlqbuKZjjf_bGdTw_jUfLv7I9"
+      supabaseAnonKey.length > 20 &&
+      supabaseAnonKey.indexOf("YOUR_SUPABASE") === -1
     );
   }
 

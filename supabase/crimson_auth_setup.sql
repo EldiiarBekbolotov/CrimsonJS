@@ -62,7 +62,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  profile_username text := nullif(btrim(new.raw_user_meta_data ->> 'username'), '');
+  profile_username text := nullif(lower(btrim(new.raw_user_meta_data ->> 'username')), '');
   profile_site text := nullif(btrim(new.raw_user_meta_data ->> 'site'), '');
 begin
   if profile_username is not null and profile_site is not null and new.email is not null then
