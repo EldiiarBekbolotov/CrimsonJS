@@ -1,3 +1,310 @@
-html, body {
-  /* Defaults */
+html.crimson-auth-locked,
+body.crimson-auth-locked {
+  overflow: hidden !important;
+}
+
+body.crimson-auth-locked {
+  touch-action: none;
+}
+
+.crimson-auth-gate,
+.crimson-auth-gate * {
+  box-sizing: border-box;
+  letter-spacing: 0;
+}
+
+.crimson-auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  min-width: 320px;
+  padding: 24px;
+  overflow: auto;
+  color: #1d1a16;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.crimson-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 13, 12, 0.76);
+  backdrop-filter: blur(16px);
+}
+
+.crimson-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+  width: min(960px, calc(100vw - 48px));
+  min-height: 560px;
+  overflow: hidden;
+  background: #fffaf3;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
+}
+
+.crimson-intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 18px;
+  min-height: 100%;
+  padding: 44px;
+  color: #fff8ec;
+  background:
+    linear-gradient(135deg, rgba(199, 62, 80, 0.18), transparent 42%),
+    #17120f;
+}
+
+.crimson-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: auto;
+  color: #fff8ec;
+  font-size: 21px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #c73e50;
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(199, 62, 80, 0.38);
+}
+
+.crimson-kicker {
+  margin: 0;
+  color: #eab308;
+  font-size: 13px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.crimson-intro h1 {
+  max-width: 11ch;
+  margin: 0;
+  color: #fff8ec;
+  font-size: 60px;
+  line-height: 0.95;
+  font-weight: 850;
+}
+
+.crimson-description {
+  max-width: 34rem;
+  margin: 0;
+  color: rgba(255, 248, 236, 0.8);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.crimson-stat {
+  display: grid;
+  gap: 4px;
+  max-width: 360px;
+  padding: 16px;
+  background: rgba(255, 248, 236, 0.08);
+  border: 1px solid rgba(255, 248, 236, 0.18);
+  border-radius: 8px;
+}
+
+.crimson-stat-number {
+  color: #5eead4;
+  font-size: 26px;
+  font-weight: 850;
+}
+
+.crimson-stat-copy {
+  color: rgba(255, 248, 236, 0.78);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.crimson-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  min-width: 0;
+  padding: 44px;
+  background: #fffaf3;
+}
+
+.crimson-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  background: #eee4d4;
+  border-radius: 8px;
+}
+
+.crimson-tab {
+  min-height: 42px;
+  color: #51483f;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.crimson-tab.is-active {
+  color: #17120f;
+  background: #fffaf3;
+  box-shadow: 0 4px 16px rgba(37, 30, 22, 0.08);
+}
+
+.crimson-form {
+  display: none;
+  gap: 16px;
+}
+
+.crimson-form.is-active {
+  display: grid;
+}
+
+.crimson-field {
+  display: grid;
+  gap: 8px;
+  color: #413a33;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.crimson-field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  color: #17120f;
+  font: inherit;
+  font-size: 15px;
+  background: #ffffff;
+  border: 1px solid #d9cdbc;
+  border-radius: 8px;
+  outline: 0;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.crimson-field input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14);
+}
+
+.crimson-help {
+  margin: -6px 0 0;
+  color: #766b5f;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.crimson-submit {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 4px;
+  color: #fffaf3;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  background: #c73e50;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(199, 62, 80, 0.28);
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.crimson-submit:hover {
+  background: #ad3142;
+  box-shadow: 0 14px 32px rgba(199, 62, 80, 0.34);
+  transform: translateY(-1px);
+}
+
+.crimson-submit:disabled,
+.crimson-form.is-loading .crimson-submit {
+  cursor: wait;
+  opacity: 0.68;
+  transform: none;
+}
+
+.crimson-message {
+  min-height: 20px;
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.crimson-message[data-crimson-message="success"] {
+  color: #0f766e;
+}
+
+.crimson-message[data-crimson-message="error"] {
+  color: #b91c1c;
+}
+
+.crimson-tab:focus-visible,
+.crimson-submit:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.34);
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .crimson-auth-gate {
+    align-items: start;
+    padding: 14px;
+  }
+
+  .crimson-shell {
+    grid-template-columns: 1fr;
+    width: min(100%, 520px);
+    min-height: 0;
+  }
+
+  .crimson-intro {
+    min-height: 320px;
+    padding: 28px;
+  }
+
+  .crimson-intro h1 {
+    max-width: 14ch;
+    font-size: 42px;
+  }
+
+  .crimson-panel {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 420px) {
+  .crimson-auth-gate {
+    padding: 0;
+  }
+
+  .crimson-shell {
+    width: 100%;
+    min-height: 100dvh;
+    border-width: 0;
+    border-radius: 0;
+  }
+
+  .crimson-intro,
+  .crimson-panel {
+    padding: 24px;
+  }
+
+  .crimson-intro h1 {
+    font-size: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crimson-field input,
+  .crimson-submit {
+    transition: none;
+  }
 }
