@@ -368,7 +368,7 @@
 
       setMessage(
         form,
-        "Signup failed. Try logging in, or use a different username.",
+        getSignupErrorMessage(error),
         "error",
       );
     } finally {
@@ -614,9 +614,26 @@
     var message = String((error && error.message) || "").toLowerCase();
     var code = String((error && (error.code || error.status)) || "").toLowerCase();
 
+    if (message.indexOf("missing_supabase_config") !== -1) {
+      return "CrimsonJS is missing its Supabase configuration.";
+    }
+
+    if (message.indexOf("missing_supabase_client") !== -1) {
+      return "Supabase did not load. Refresh and try again.";
+    }
+
+    if (
+      message.indexOf("failed to fetch") !== -1 ||
+      message.indexOf("network") !== -1 ||
+      message.indexOf("load failed") !== -1
+    ) {
+      return "Could not reach Supabase Auth. Check your connection and try again.";
+    }
+
     if (
       code === "23505" ||
       message.indexOf("profiles_username_global_unique") !== -1 ||
+      message.indexOf("database error saving new user") !== -1 ||
       (message.indexOf("duplicate") !== -1 && message.indexOf("username") !== -1)
     ) {
       return "That username is already taken.";
