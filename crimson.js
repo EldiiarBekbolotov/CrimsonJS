@@ -42,6 +42,7 @@
     injectStyles();
 
     var gate = renderGate();
+    applyTheme(gate);
     document.body.appendChild(gate);
     document.body.classList.add("crimson-auth-locked");
     bindGate(gate);
@@ -133,9 +134,15 @@
       '<section class="crimson-shell" role="dialog" aria-modal="true" aria-labelledby="crimson-title">' +
       '  <div class="crimson-intro">' +
       '    <div class="crimson-mark" aria-hidden="true">' +
-      escapeHtml(siteName.charAt(0) || "C") +
+      (rawConfig.pfpURL
+        ? '<img src="' +
+          escapeHtml(rawConfig.pfpURL) +
+          '" alt="' +
+          escapeHtml(siteName) +
+          '">'
+        : escapeHtml(siteName.charAt(0) || "C")) +
       "</div>" +
-      '    <p class="crimson-kicker">Members access</p>' +
+      '    <p class="crimson-kicker"></p>' +
       '    <h1 id="crimson-title">' +
       escapeHtml(siteName) +
       "</h1>" +
@@ -151,9 +158,11 @@
       "  </div>" +
       '  <div class="crimson-panel">' +
       '    <div class="crimson-tabs" role="tablist" aria-label="Authentication options">' +
+      '      <div class="crimson-tab-indicator" aria-hidden="true"></div>' +
       '      <button class="crimson-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="crimson-login-form" data-crimson-tab="login">Login</button>' +
       '      <button class="crimson-tab" type="button" role="tab" aria-selected="false" aria-controls="crimson-signup-form" data-crimson-tab="signup">Signup</button>' +
       "    </div>" +
+      '    <div class="crimson-forms">' +
       '    <form class="crimson-form is-active" id="crimson-login-form" data-crimson-form="login" novalidate>' +
       '      <label class="crimson-field">Email<input name="login-email" type="email" autocomplete="email" required></label>' +
       '      <label class="crimson-field">Password<input name="login-password" type="password" autocomplete="current-password" required></label>' +
@@ -168,10 +177,49 @@
       '      <button class="crimson-submit" type="submit">Create account</button>' +
       '      <p class="crimson-message" role="status" aria-live="polite"></p>' +
       "    </form>" +
+      "    </div>" +
       "  </div>" +
+      (rawConfig.customHTML
+        ? '<div class="crimson-extra">' + rawConfig.customHTML + "</div>"
+        : "") +
       "</section>";
 
     return gate;
+  }
+
+  function applyTheme(gate) {
+    var colors =
+      rawConfig.colors && typeof rawConfig.colors === "object"
+        ? rawConfig.colors
+        : {};
+    var font = rawConfig.font;
+
+    var colorMap = {
+      introBg: "--crimson-intro-bg",
+      introText: "--crimson-intro-text",
+      introTextMuted: "--crimson-intro-text-muted",
+      markBg: "--crimson-mark-bg",
+      kicker: "--crimson-kicker",
+      panelBg: "--crimson-panel-bg",
+      tabsBg: "--crimson-tabs-bg",
+      accent: "--crimson-accent",
+      accentText: "--crimson-accent-text",
+      accentHover: "--crimson-accent-hover",
+      focus: "--crimson-focus",
+      focusRing: "--crimson-focus-ring",
+      backdrop: "--crimson-backdrop",
+      statBg: "--crimson-stat-bg",
+    };
+
+    Object.keys(colorMap).forEach(function (key) {
+      if (colors[key]) {
+        gate.style.setProperty(colorMap[key], colors[key]);
+      }
+    });
+
+    if (font) {
+      gate.style.setProperty("--crimson-font", font);
+    }
   }
 
   function bindGate(gate) {
@@ -218,6 +266,10 @@
   }
 
   function setMode(gate, mode) {
+    if (gate.getAttribute("data-crimson-mode") === mode) {
+      return;
+    }
+
     gate.setAttribute("data-crimson-mode", mode);
 
     Array.prototype.forEach.call(
@@ -232,10 +284,8 @@
     Array.prototype.forEach.call(
       gate.querySelectorAll("[data-crimson-form]"),
       function (form) {
-        form.classList.toggle(
-          "is-active",
-          form.getAttribute("data-crimson-form") === mode,
-        );
+        var isActive = form.getAttribute("data-crimson-form") === mode;
+        form.classList.toggle("is-active", isActive);
         setMessage(form, "");
       },
     );
@@ -325,12 +375,7 @@
 
       if (signup.data && signup.data.session && signup.data.user) {
         await applySession(client, signup.data.session);
-        ensureSiteProfile(
-          client,
-          signup.data.user,
-          username,
-          email,
-        );
+        ensureSiteProfile(client, signup.data.user, username, email);
         unlockPage(signup.data.user.id);
         return;
       }
@@ -366,11 +411,7 @@
         return;
       }
 
-      setMessage(
-        form,
-        getSignupErrorMessage(error),
-        "error",
-      );
+      setMessage(form, getSignupErrorMessage(error), "error");
     } finally {
       setBusy(form, false);
     }
@@ -388,12 +429,7 @@
         return null;
       }
 
-      ensureSiteProfile(
-        client,
-        login.data.user,
-        username,
-        email,
-      );
+      ensureSiteProfile(client, login.data.user, username, email);
       return login.data.user.id;
     } catch (error) {
       return null;
@@ -612,7 +648,9 @@
 
   function getSignupErrorMessage(error) {
     var message = String((error && error.message) || "").toLowerCase();
-    var code = String((error && (error.code || error.status)) || "").toLowerCase();
+    var code = String(
+      (error && (error.code || error.status)) || "",
+    ).toLowerCase();
 
     if (message.indexOf("missing_supabase_config") !== -1) {
       return "CrimsonJS is missing its Supabase configuration.";
@@ -634,7 +672,8 @@
       code === "23505" ||
       message.indexOf("profiles_username_global_unique") !== -1 ||
       message.indexOf("database error saving new user") !== -1 ||
-      (message.indexOf("duplicate") !== -1 && message.indexOf("username") !== -1)
+      (message.indexOf("duplicate") !== -1 &&
+        message.indexOf("username") !== -1)
     ) {
       return "That username is already taken.";
     }

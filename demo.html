@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrimsonJS Configurator</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        display: flex;
+        height: 100dvh;
+        overflow: hidden;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        font-size: 13px;
+        background: #0e0e0e;
+        color: #d4cfc9;
+      }
+
+      .editor {
+        width: 272px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        background: #141414;
+        border-right: 1px solid #242424;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #333 transparent;
+      }
+
+      .editor-head {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 14px;
+        background: #141414;
+        border-bottom: 1px solid #242424;
+      }
+
+      .editor-wordmark {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #444;
+      }
+
+      .copy-btn {
+        padding: 5px 13px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #e8e3db;
+        color: #111;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition:
+          background 120ms,
+          color 120ms;
+        white-space: nowrap;
+      }
+      .copy-btn:hover {
+        background: #fff;
+      }
+      .copy-btn.is-copied {
+        background: #16a34a;
+        color: #fff;
+      }
+
+      .section {
+        padding: 13px 14px;
+        border-bottom: 1px solid #1e1e1e;
+      }
+
+      .section-heading {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #3a3a3a;
+        margin-bottom: 10px;
+      }
+
+      .field {
+        margin-bottom: 7px;
+      }
+      .field:last-child {
+        margin-bottom: 0;
+      }
+
+      .field-label {
+        display: block;
+        font-size: 10.5px;
+        color: #555;
+        margin-bottom: 3px;
+      }
+
+      .field input[type="text"],
+      .field input[type="url"],
+      .field textarea {
+        width: 100%;
+        padding: 5px 8px;
+        background: #1c1c1c;
+        border: 1px solid #2c2c2c;
+        border-radius: 5px;
+        color: #c8c3bd;
+        font-size: 11.5px;
+        font-family: "SF Mono", ui-monospace, "Fira Code", monospace;
+        line-height: 1.45;
+        outline: none;
+        resize: vertical;
+        transition: border-color 100ms;
+      }
+      .field input:focus,
+      .field textarea:focus {
+        border-color: #404040;
+      }
+
+      .color-row {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .color-row input[type="text"] {
+        flex: 1;
+      }
+
+      input[type="color"].swatch {
+        width: 26px;
+        height: 26px;
+        padding: 2px;
+        border: 1px solid #2c2c2c;
+        border-radius: 4px;
+        background: #1c1c1c;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .preview {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .preview iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="editor">
+      <div class="editor-head">
+        <span class="editor-wordmark">CrimsonJS</span>
+        <button class="copy-btn" id="copy-btn">Copy Config</button>
+      </div>
+
+      <!-- Site -->
+      <div class="section">
+        <div class="section-heading">Site</div>
+        <div class="field">
+          <label class="field-label">Site Name</label
+          ><input type="text" id="f-siteName" value="Univa Dev" />
+        </div>
+        <div class="field">
+          <label class="field-label">Description</label
+          ><input
+            type="text"
+            id="f-description"
+            placeholder="Create an account or log in to continue."
+          />
+        </div>
+        <div class="field">
+          <label class="field-label">PFP / Logo URL</label
+          ><input
+            type="url"
+            id="f-pfpURL"
+            value="https://univadev.com/univadev.svg"
+          />
+        </div>
+        <div class="field">
+          <label class="field-label">Font Family</label
+          ><input type="text" id="f-font" value="Inter, sans-serif" />
+        </div>
+      </div>
+
+      <!-- Colors -->
+      <div class="section">
+        <div class="section-heading">Colors</div>
+        <div class="field">
+          <label class="field-label">Intro Background</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-introBg"
+              value="#1a1a2e"
+            /><input type="text" id="f-introBg" value="#1a1a2e" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Intro Text</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-introText"
+              value="#e0e0ff"
+            /><input type="text" id="f-introText" value="#e0e0ff" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Mark Background</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-markBg"
+              value="#878787"
+            /><input type="text" id="f-markBg" placeholder="default" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Kicker Color</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-kicker"
+              value="#b3b3b3"
+            /><input type="text" id="f-kicker" placeholder="default" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Panel Background</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-panelBg"
+              value="#fafafa"
+            /><input type="text" id="f-panelBg" value="#fafafa" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Tabs Background</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-tabsBg"
+              value="#eee4d4"
+            /><input type="text" id="f-tabsBg" placeholder="default" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Accent</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-accent"
+              value="#7c3aed"
+            /><input type="text" id="f-accent" value="#7c3aed" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Accent Hover</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-accentHover"
+              value="#6d28d9"
+            /><input type="text" id="f-accentHover" value="#6d28d9" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Accent Text</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-accentText"
+              value="#ffffff"
+            /><input type="text" id="f-accentText" value="#ffffff" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Backdrop</label
+          ><input
+            type="text"
+            id="f-backdrop"
+            placeholder="rgba(14,13,12,0.76)"
+          />
+        </div>
+        <div class="field">
+          <label class="field-label">Focus Border</label>
+          <div class="color-row">
+            <input
+              type="color"
+              class="swatch"
+              data-tx="f-focus"
+              value="#7c3aed"
+            /><input type="text" id="f-focus" value="#7c3aed" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Focus Ring</label
+          ><input type="text" id="f-focusRing" value="rgba(124,58,237,0.15)" />
+        </div>
+        <div class="field">
+          <label class="field-label">Stat Background</label
+          ><input
+            type="text"
+            id="f-statBg"
+            placeholder="rgba(255,248,236,0.18)"
+          />
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="section">
+        <div class="section-heading">Content</div>
+        <div class="field">
+          <label class="field-label">Custom HTML</label>
+          <textarea
+            id="f-customHTML"
+            rows="4"
+            placeholder="<p>Need help? <a href='/support'>Contact us</a></p>"
+          ></textarea>
+        </div>
+      </div>
+    </aside>
+
+    <div class="preview">
+      <iframe id="preview-frame" title="CrimsonJS Preview"></iframe>
+    </div>
+
+    <script>
+      var BASE = (function () {
+        var h = window.location.href;
+        return h.slice(0, h.lastIndexOf("/") + 1);
+      })();
+
+      var TEXT_FIELDS = {
+        "f-siteName": "siteName",
+        "f-description": "description",
+        "f-pfpURL": "pfpURL",
+        "f-font": "font",
+        "f-customHTML": "customHTML",
+      };
+
+      var COLOR_FIELDS = [
+        ["f-introBg", "introBg"],
+        ["f-introText", "introText"],
+        ["f-markBg", "markBg"],
+        ["f-kicker", "kicker"],
+        ["f-panelBg", "panelBg"],
+        ["f-tabsBg", "tabsBg"],
+        ["f-accent", "accent"],
+        ["f-accentHover", "accentHover"],
+        ["f-accentText", "accentText"],
+        ["f-backdrop", "backdrop"],
+        ["f-focus", "focus"],
+        ["f-focusRing", "focusRing"],
+        ["f-statBg", "statBg"],
+      ];
+
+      function val(id) {
+        var el = document.getElementById(id);
+        return el ? el.value.trim() : "";
+      }
+
+      function readConfig() {
+        var cfg = {};
+        Object.keys(TEXT_FIELDS).forEach(function (id) {
+          var v = val(id);
+          if (v) cfg[TEXT_FIELDS[id]] = v;
+        });
+
+        var colors = {};
+        COLOR_FIELDS.forEach(function (pair) {
+          var v = val(pair[0]);
+          if (v) colors[pair[1]] = v;
+        });
+        if (Object.keys(colors).length) cfg.colors = colors;
+
+        return cfg;
+      }
+
+      function buildSrcdoc(cfg) {
+        var forPreview = Object.assign({}, cfg, {
+          cssUrl: BASE + "crimson.css",
+        });
+        return [
+          "<!doctype html><html><head>",
+          "<meta charset='UTF-8'>",
+          "<meta name='viewport' content='width=device-width,initial-scale=1'>",
+          "<style>",
+          "html,body{height:100%;margin:0}",
+          "body{background-image:url('https://upload.wikimedia.org/wikipedia/commons/1/15/John_Constable_-_Wivenhoe_Park%2C_Essex_-_Google_Art_Project.jpg');background-size:cover;background-position:center}",
+          "<\/style></head><body>",
+          "<script>",
+          "Object.keys(localStorage).forEach(function(k){if(k.indexOf('crimson_auth_')===0)localStorage.removeItem(k)});",
+          "window.CrimsonConfig=" + JSON.stringify(forPreview) + ";",
+          "<\/script>",
+          "<script src='" + BASE + "crimson.js'><\/script>",
+          "</body></html>",
+        ].join("\n");
+      }
+
+      function generateCode(cfg) {
+        var order = ["siteName", "description", "pfpURL", "font"];
+        var lines = ["window.CrimsonConfig = {"];
+        order.forEach(function (k) {
+          if (cfg[k])
+            lines.push("  " + k + ": " + JSON.stringify(cfg[k]) + ",");
+        });
+        if (cfg.colors && Object.keys(cfg.colors).length) {
+          lines.push("  colors: {");
+          Object.keys(cfg.colors).forEach(function (k) {
+            lines.push("    " + k + ": " + JSON.stringify(cfg.colors[k]) + ",");
+          });
+          lines.push("  },");
+        }
+        if (cfg.customHTML)
+          lines.push("  customHTML: " + JSON.stringify(cfg.customHTML) + ",");
+        lines.push("};");
+        return lines.join("\n");
+      }
+
+      var refreshTimer;
+      function scheduleRefresh() {
+        clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(function () {
+          document.getElementById("preview-frame").srcdoc =
+            buildSrcdoc(readConfig());
+        }, 300);
+      }
+
+      // Wire text inputs
+      Object.keys(TEXT_FIELDS).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener("input", scheduleRefresh);
+      });
+
+      // Wire color text inputs + swatches
+      COLOR_FIELDS.forEach(function (pair) {
+        var textEl = document.getElementById(pair[0]);
+        if (!textEl) return;
+        textEl.addEventListener("input", function () {
+          var swatch = document.querySelector("[data-tx='" + pair[0] + "']");
+          if (swatch && /^#[0-9a-f]{3,8}$/i.test(textEl.value)) {
+            swatch.value = textEl.value.slice(0, 7);
+          }
+          scheduleRefresh();
+        });
+      });
+
+      document.querySelectorAll("input.swatch").forEach(function (swatch) {
+        swatch.addEventListener("input", function () {
+          var textEl = document.getElementById(swatch.getAttribute("data-tx"));
+          if (textEl) {
+            textEl.value = swatch.value;
+            scheduleRefresh();
+          }
+        });
+      });
+
+      // Copy button
+      document
+        .getElementById("copy-btn")
+        .addEventListener("click", function () {
+          var code = generateCode(readConfig());
+          var btn = document.getElementById("copy-btn");
+          function markCopied() {
+            btn.textContent = "Copied!";
+            btn.classList.add("is-copied");
+            setTimeout(function () {
+              btn.textContent = "Copy Config";
+              btn.classList.remove("is-copied");
+            }, 1800);
+          }
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(code).then(markCopied);
+          } else {
+            var ta = document.createElement("textarea");
+            ta.value = code;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            markCopied();
+          }
+        });
+
+      // Boot
+      scheduleRefresh();
+    </script>
+  </body>
+</html>

@@ -23,14 +23,22 @@ body.crimson-auth-locked {
   padding: 24px !important;
   overflow: auto !important;
   color: #1d1a16 !important;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-family: var(
+    --crimson-font,
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif
+  ) !important;
 }
 
 .crimson-backdrop {
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(14, 13, 12, 0.76) !important;
-  backdrop-filter: blur(16px) !important;
+  background: var(--crimson-backdrop, rgba(14, 13, 12, 0.76)) !important;
 }
 
 .crimson-shell {
@@ -41,9 +49,8 @@ body.crimson-auth-locked {
   width: min(960px, calc(100vw - 48px)) !important;
   min-height: 560px !important;
   overflow: hidden !important;
-  background: #fffaf3 !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-radius: 8px !important;
+  background: var(--crimson-panel-bg, #fffaf3) !important;
+  border-radius: 12px !important;
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38) !important;
 }
 
@@ -54,10 +61,8 @@ body.crimson-auth-locked {
   gap: 18px !important;
   min-height: 100% !important;
   padding: 44px !important;
-  color: #fff8ec !important;
-  background:
-    linear-gradient(135deg, rgba(199, 62, 80, 0.18), transparent 42%),
-    #17120f !important;
+  color: var(--crimson-intro-text, #fff8ec) !important;
+  background: var(--crimson-intro-bg, #000) !important;
 }
 
 .crimson-mark {
@@ -66,36 +71,43 @@ body.crimson-auth-locked {
   width: 48px !important;
   height: 48px !important;
   margin-bottom: auto !important;
-  color: #fff8ec !important;
+  color: var(--crimson-intro-text, #fff8ec) !important;
   font-size: 21px !important;
-  font-weight: 800 !important;
+  font-weight: 100 !important;
   text-transform: uppercase !important;
-  background: #f80425 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 12px 34px rgba(199, 62, 80, 0.38) !important;
+  background: transparent;
+  border-radius: 60px !important;
+}
+
+.crimson-mark img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: inherit !important;
+  display: block !important;
 }
 
 .crimson-kicker {
   margin: 0 !important;
-  color: #eab308 !important;
+  color: var(--crimson-kicker, #b3b3b3) !important;
   font-size: 13px !important;
-  font-weight: 750 !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
 }
 
 .crimson-intro h1 {
   max-width: 11ch !important;
   margin: 0 !important;
-  color: #fff8ec !important;
+  color: var(--crimson-intro-text, #fff8ec) !important;
   font-size: 60px !important;
   line-height: 0.95 !important;
-  font-weight: 850 !important;
+  font-weight: 400 !important;
 }
 
 .crimson-description {
   max-width: 34rem !important;
   margin: 0 !important;
-  color: rgba(255, 248, 236, 0.8) !important;
+  color: var(--crimson-intro-text-muted, rgba(255, 248, 236, 0.8)) !important;
   font-size: 16px !important;
   line-height: 1.6 !important;
 }
@@ -105,19 +117,18 @@ body.crimson-auth-locked {
   gap: 4px !important;
   max-width: 360px !important;
   padding: 16px !important;
-  background: rgba(255, 248, 236, 0.08) !important;
-  border: 1px solid rgba(255, 248, 236, 0.18) !important;
-  border-radius: 8px !important;
+  background: var(--crimson-stat-bg, rgba(255, 248, 236, 0.184)) !important;
+  border-radius: 6px !important;
 }
 
 .crimson-stat-number {
-  color: #5eead4 !important;
+  color: var(--crimson-intro-text, #ffffff) !important;
   font-size: 26px !important;
-  font-weight: 850 !important;
+  font-weight: 400 !important;
 }
 
 .crimson-stat-copy {
-  color: rgba(255, 248, 236, 0.78) !important;
+  color: var(--crimson-intro-text-muted, rgba(255, 248, 236, 0.78)) !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
 }
@@ -129,43 +140,77 @@ body.crimson-auth-locked {
   gap: 24px !important;
   min-width: 0 !important;
   padding: 44px !important;
-  background: #fffaf3 !important;
+  background: var(--crimson-panel-bg, #fffaf3) !important;
 }
 
 .crimson-tabs {
+  position: relative !important;
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 6px !important;
   padding: 6px !important;
-  background: #eee4d4 !important;
-  border-radius: 8px !important;
+  background: var(--crimson-tabs-bg, #eee4d4) !important;
+  border-radius: 100px !important;
+}
+
+.crimson-tab-indicator {
+  position: absolute !important;
+  top: 6px !important;
+  bottom: 6px !important;
+  left: 6px !important;
+  width: calc(50% - 9px) !important;
+  background: var(--crimson-panel-bg, #fffaf3) !important;
+  border-radius: 100px !important;
+  box-shadow: 0 4px 16px rgba(37, 30, 22, 0.08) !important;
+  pointer-events: none !important;
+  transition: transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+[data-crimson-mode="signup"] .crimson-tab-indicator {
+  transform: translateX(calc(100%)) !important;
 }
 
 .crimson-tab {
+  position: relative !important;
+  z-index: 1 !important;
   min-height: 42px !important;
   color: #51483f !important;
   font: inherit !important;
   font-size: 14px !important;
-  font-weight: 750 !important;
+  font-weight: 600 !important;
   background: transparent !important;
   border: 0 !important;
-  border-radius: 6px !important;
+  border-radius: 100px !important;
   cursor: pointer !important;
 }
 
 .crimson-tab.is-active {
   color: #17120f !important;
-  background: #fffaf3 !important;
-  box-shadow: 0 4px 16px rgba(37, 30, 22, 0.08) !important;
+}
+
+.crimson-forms {
+  display: grid !important;
 }
 
 .crimson-form {
-  display: none !important;
+  grid-area: 1 / 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 16px !important;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  transition:
+    opacity 0s ease-in-out,
+    transform 0.1s ease-in-out;
+  transform: scale(0.99);
 }
 
 .crimson-form.is-active {
-  display: grid !important;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  user-select: auto;
 }
 
 .crimson-field {
@@ -173,7 +218,7 @@ body.crimson-auth-locked {
   gap: 8px !important;
   color: #413a33 !important;
   font-size: 13px !important;
-  font-weight: 750 !important;
+  font-weight: 400 !important;
 }
 
 .crimson-field input {
@@ -187,12 +232,14 @@ body.crimson-auth-locked {
   border: 1px solid #d9cdbc !important;
   border-radius: 8px !important;
   outline: 0 !important;
-  transition: border-color 160ms ease, box-shadow 160ms ease !important;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease !important;
 }
 
 .crimson-field input:focus {
-  border-color: #0f766e !important;
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14) !important;
+  border-color: var(--crimson-focus, #0f766e) !important;
+  box-shadow: 0 0 0 4px var(--crimson-focus-ring, rgba(15, 118, 110, 0.14)) !important;
 }
 
 .crimson-help {
@@ -205,23 +252,23 @@ body.crimson-auth-locked {
 .crimson-submit {
   width: 100% !important;
   min-height: 48px !important;
-  margin-top: 4px !important;
-  color: #fffaf3 !important;
+  margin-top: auto !important;
+  color: var(--crimson-accent-text, #fffaf3) !important;
   font: inherit !important;
   font-size: 15px !important;
   font-weight: 800 !important;
-  background: #c73e50 !important;
+  background: var(--crimson-accent, #000000) !important;
   border: 0 !important;
-  border-radius: 8px !important;
+  border-radius: 100px !important;
   cursor: pointer !important;
-  box-shadow: 0 12px 28px rgba(199, 62, 80, 0.28) !important;
-  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease !important;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease !important;
 }
 
 .crimson-submit:hover {
-  background: #ad3142 !important;
-  box-shadow: 0 14px 32px rgba(199, 62, 80, 0.34) !important;
-  transform: translateY(-1px) !important;
+  background: var(--crimson-accent-hover, #363636) !important;
 }
 
 .crimson-submit:disabled,
@@ -249,8 +296,15 @@ body.crimson-auth-locked {
 
 .crimson-tab:focus-visible,
 .crimson-submit:focus-visible {
-  outline: 3px solid rgba(15, 118, 110, 0.34) !important;
+  outline: 3px solid var(--crimson-focus-ring, rgba(15, 118, 110, 0.34)) !important;
   outline-offset: 2px !important;
+}
+
+.crimson-extra {
+  grid-column: 1 / -1 !important;
+  padding: 24px 44px 32px !important;
+  background: var(--crimson-panel-bg, #fffaf3) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 
 @media (max-width: 760px) {
@@ -278,6 +332,10 @@ body.crimson-auth-locked {
   .crimson-panel {
     padding: 28px !important;
   }
+
+  .crimson-extra {
+    padding: 20px 28px 28px !important;
+  }
 }
 
 @media (max-width: 420px) {
@@ -300,11 +358,17 @@ body.crimson-auth-locked {
   .crimson-intro h1 {
     font-size: 36px !important;
   }
+
+  .crimson-extra {
+    padding: 20px 24px 24px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .crimson-field input,
-  .crimson-submit {
+  .crimson-submit,
+  .crimson-form,
+  .crimson-tab-indicator {
     transition: none !important;
   }
 }
