@@ -34,3 +34,22 @@ CrimsonJS is an embeddable auth-gatekeeping widget for client websites.
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/gh/eldiiarbekbolotov/crimsonjs@latest/js/crimson.min.js"></script>
 ```
+
+Invisible setup
+
+```html
+<script>
+  (function () {
+    const t = Date.now();
+    const urls = [
+      "https://cdn.jsdelivr.net/gh/EldiiarBekbolotov/CrimsonJS@latest/css/crimson.min.css",
+      "https://cdn.jsdelivr.net/gh/EldiiarBekbolotov/CrimsonJS@latest/js/crimson.min.js",
+    ];
+
+    urls.forEach((url) => {
+      const img = new Image();
+      img.src = `${url}?t=${t}`;
+    });
+  })();
+</script>
+```
