@@ -308,20 +308,29 @@
       });
 
       if (signup.error) {
-        throw new Error("signup_failed");
+        var signupErrorMessage = getSignupErrorMessage(signup.error);
+        var existingJoinedIdFromError = await tryJoinExistingAccount(
+          email,
+          password,
+          username,
+        );
+        if (existingJoinedIdFromError) {
+          unlockPage(existingJoinedIdFromError);
+          return;
+        }
+
+        setMessage(form, signupErrorMessage, "error");
+        return;
       }
 
       if (signup.data && signup.data.session && signup.data.user) {
-        var created = await ensureSiteProfile(
+        await applySession(client, signup.data.session);
+        ensureSiteProfile(
           client,
           signup.data.user,
           username,
           email,
         );
-        if (!created) {
-          throw new Error("profile_failed");
-        }
-
         unlockPage(signup.data.user.id);
         return;
       }
@@ -379,15 +388,30 @@
         return null;
       }
 
-      var joined = await ensureSiteProfile(
+      ensureSiteProfile(
         client,
         login.data.user,
         username,
         email,
       );
-      return joined ? login.data.user.id : null;
+      return login.data.user.id;
     } catch (error) {
       return null;
+    }
+  }
+
+  async function applySession(client, session) {
+    if (!session || !session.access_token || !session.refresh_token) {
+      return;
+    }
+
+    try {
+      await client.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      });
+    } catch (error) {
+      return;
     }
   }
 
@@ -584,6 +608,32 @@
     }
 
     return "";
+  }
+
+  function getSignupErrorMessage(error) {
+    var message = String((error && error.message) || "").toLowerCase();
+    var code = String((error && (error.code || error.status)) || "").toLowerCase();
+
+    if (
+      code === "23505" ||
+      message.indexOf("profiles_username_global_unique") !== -1 ||
+      (message.indexOf("duplicate") !== -1 && message.indexOf("username") !== -1)
+    ) {
+      return "That username is already taken.";
+    }
+
+    if (
+      message.indexOf("already registered") !== -1 ||
+      message.indexOf("already exists") !== -1
+    ) {
+      return "That email already has an account. Try logging in.";
+    }
+
+    if (message.indexOf("password") !== -1) {
+      return "Use a stronger password.";
+    }
+
+    return "Signup failed. Try a different username or log in if you already have an account.";
   }
 
   function isValidUsername(value) {

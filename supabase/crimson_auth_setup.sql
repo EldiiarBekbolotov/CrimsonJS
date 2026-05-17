@@ -65,13 +65,26 @@ declare
   profile_username text := nullif(lower(btrim(new.raw_user_meta_data ->> 'username')), '');
   profile_site text := nullif(btrim(new.raw_user_meta_data ->> 'site'), '');
 begin
-  if profile_username is not null and profile_site is not null and new.email is not null then
-    insert into public.profiles (id, username, email, site)
-    values (new.id, profile_username, lower(new.email), profile_site)
-    on conflict (id, site) do nothing;
+  if profile_username is null or profile_site is null or new.email is null then
+    return new;
   end if;
 
+  if char_length(profile_username) < 4
+    or char_length(profile_username) > 32
+    or profile_username !~ '^[A-Za-z0-9_.-]+$'
+    or char_length(regexp_replace(profile_username, '[^A-Za-z]', '', 'g')) < 4
+    or char_length(profile_site) = 0 then
+    return new;
+  end if;
+
+  insert into public.profiles (id, username, email, site)
+  values (new.id, profile_username, lower(new.email), profile_site)
+  on conflict do nothing;
+
   return new;
+exception
+  when others then
+    return new;
 end;
 $$;
 
