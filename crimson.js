@@ -313,7 +313,7 @@
     try {
       var client = await getSupabaseClient();
       var result = await client.auth.signInWithPassword({
-        email: email,
+        email: siteEmail(email),
         password: password,
       });
 
@@ -347,7 +347,7 @@
     try {
       var client = await getSupabaseClient();
       var signup = await client.auth.signUp({
-        email: email,
+        email: siteEmail(email),
         password: password,
         options: {
           data: {
@@ -358,7 +358,6 @@
       });
 
       if (signup.error) {
-        var signupErrorMessage = getSignupErrorMessage(signup.error);
         var existingJoinedIdFromError = await tryJoinExistingAccount(
           email,
           password,
@@ -369,7 +368,7 @@
           return;
         }
 
-        setMessage(form, signupErrorMessage, "error");
+        setMessage(form, getSignupErrorMessage(signup.error), "error");
         return;
       }
 
@@ -421,7 +420,7 @@
     try {
       var client = await getSupabaseClient();
       var login = await client.auth.signInWithPassword({
-        email: email,
+        email: siteEmail(email),
         password: password,
       });
 
@@ -747,6 +746,12 @@
         .replace(/[^A-Za-z0-9]+/g, "_")
         .replace(/^_+|_+$/g, "") || "site"
     );
+  }
+
+  function siteEmail(email) {
+    var at = email.lastIndexOf("@");
+    if (at === -1) return email;
+    return email.slice(0, at) + "+" + slugify(siteName) + email.slice(at);
   }
 
   function safeGet(key) {
