@@ -17,11 +17,7 @@ body.crimson-auth-locked {
   position: fixed !important;
   inset: 0 !important;
   z-index: 2147483647 !important;
-  display: grid !important;
-  place-items: center !important;
-  min-width: 320px !important;
-  padding: 24px !important;
-  overflow: auto !important;
+  pointer-events: none !important;
   color: #1d1a16 !important;
   font-family: var(
     --crimson-font,
@@ -35,10 +31,70 @@ body.crimson-auth-locked {
   ) !important;
 }
 
+.crimson-launcher {
+  position: absolute !important;
+  right: 24px !important;
+  bottom: 24px !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 56px !important;
+  height: 56px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: var(--crimson-accent-text, #fffaf3) !important;
+  font: inherit !important;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  background: var(--crimson-accent, #000000) !important;
+  border: 0 !important;
+  border-radius: 100px !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease !important;
+}
+
+.crimson-launcher:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.34) !important;
+}
+
+.crimson-launcher img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: inherit !important;
+  display: block !important;
+}
+
+.crimson-modal {
+  position: absolute !important;
+  inset: 0 !important;
+  display: none !important;
+  place-items: center !important;
+  min-width: 320px !important;
+  padding: 24px !important;
+  overflow: auto !important;
+  pointer-events: auto !important;
+}
+
+.crimson-auth-gate.is-open .crimson-modal {
+  display: grid !important;
+}
+
 .crimson-backdrop {
   position: fixed !important;
   inset: 0 !important;
-  background: var(--crimson-backdrop, rgba(14, 13, 12, 0.76)) !important;
+  background: var(--crimson-backdrop, rgba(14, 13, 12, 0.55)) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.crimson-auth-gate.is-open .crimson-backdrop {
+  animation: crimson-fade 220ms ease both !important;
 }
 
 .crimson-shell {
@@ -50,8 +106,61 @@ body.crimson-auth-locked {
   min-height: 560px !important;
   overflow: hidden !important;
   background: var(--crimson-panel-bg, #fffaf3) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35) !important;
+}
+
+.crimson-auth-gate.is-open .crimson-shell {
+  animation: crimson-pop 300ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+@keyframes crimson-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes crimson-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.crimson-close {
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 2 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  color: #51483f !important;
+  font: inherit !important;
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  background: var(--crimson-panel-bg, #fffaf3) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 100px !important;
+  cursor: pointer !important;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease !important;
+}
+
+.crimson-close:hover {
+  color: #17120f !important;
+  border-color: rgba(0, 0, 0, 0.22) !important;
 }
 
 .crimson-intro {
@@ -91,7 +200,7 @@ body.crimson-auth-locked {
   margin: 0 !important;
   color: var(--crimson-kicker, #b3b3b3) !important;
   font-size: 13px !important;
-  font-weight: 700 !important;
+  font-weight: 400 !important;
   text-transform: uppercase !important;
 }
 
@@ -118,7 +227,7 @@ body.crimson-auth-locked {
   max-width: 360px !important;
   padding: 16px !important;
   background: var(--crimson-stat-bg, rgba(255, 248, 236, 0.184)) !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
 }
 
 .crimson-stat-number {
@@ -166,7 +275,7 @@ body.crimson-auth-locked {
   transition: transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-[data-crimson-mode="signup"] .crimson-tab-indicator {
+[data-crimson-mode="login"] .crimson-tab-indicator {
   transform: translateX(calc(100%)) !important;
 }
 
@@ -177,7 +286,7 @@ body.crimson-auth-locked {
   color: #51483f !important;
   font: inherit !important;
   font-size: 14px !important;
-  font-weight: 600 !important;
+  font-weight: 400 !important;
   background: transparent !important;
   border: 0 !important;
   border-radius: 100px !important;
@@ -242,11 +351,27 @@ body.crimson-auth-locked {
   box-shadow: 0 0 0 4px var(--crimson-focus-ring, rgba(15, 118, 110, 0.14)) !important;
 }
 
-.crimson-help {
-  margin: -6px 0 0 !important;
-  color: #766b5f !important;
+.crimson-field input[data-crimson-valid="valid"] {
+  border-color: #16a34a !important;
+}
+
+.crimson-field input[data-crimson-valid="valid"]:focus {
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.14) !important;
+}
+
+.crimson-hint {
+  margin: -8px 0 0 !important;
+  color: #8a8178 !important;
   font-size: 12px !important;
   line-height: 1.45 !important;
+}
+
+.crimson-hint[data-crimson-state="valid"] {
+  color: #15803d !important;
+}
+
+.crimson-hint[data-crimson-state="invalid"] {
+  color: #b91c1c !important;
 }
 
 .crimson-submit {
@@ -256,7 +381,7 @@ body.crimson-auth-locked {
   color: var(--crimson-accent-text, #fffaf3) !important;
   font: inherit !important;
   font-size: 15px !important;
-  font-weight: 800 !important;
+  font-weight: 400 !important;
   background: var(--crimson-accent, #000000) !important;
   border: 0 !important;
   border-radius: 100px !important;
@@ -264,14 +389,20 @@ body.crimson-auth-locked {
   transition:
     transform 160ms ease,
     background 160ms ease,
-    box-shadow 160ms ease !important;
+    box-shadow 160ms ease,
+    opacity 160ms ease !important;
 }
 
 .crimson-submit:hover {
   background: var(--crimson-accent-hover, #363636) !important;
 }
 
-.crimson-submit:disabled,
+.crimson-submit:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.45 !important;
+  transform: none !important;
+}
+
 .crimson-form.is-loading .crimson-submit {
   cursor: wait !important;
   opacity: 0.68 !important;
@@ -295,7 +426,9 @@ body.crimson-auth-locked {
 }
 
 .crimson-tab:focus-visible,
-.crimson-submit:focus-visible {
+.crimson-submit:focus-visible,
+.crimson-launcher:focus-visible,
+.crimson-close:focus-visible {
   outline: 3px solid var(--crimson-focus-ring, rgba(15, 118, 110, 0.34)) !important;
   outline-offset: 2px !important;
 }
@@ -308,7 +441,12 @@ body.crimson-auth-locked {
 }
 
 @media (max-width: 760px) {
-  .crimson-auth-gate {
+  .crimson-launcher {
+    right: 16px !important;
+    bottom: 16px !important;
+  }
+
+  .crimson-modal {
     align-items: start !important;
     padding: 14px !important;
   }
@@ -339,7 +477,7 @@ body.crimson-auth-locked {
 }
 
 @media (max-width: 420px) {
-  .crimson-auth-gate {
+  .crimson-modal {
     padding: 0 !important;
   }
 
@@ -367,8 +505,15 @@ body.crimson-auth-locked {
 @media (prefers-reduced-motion: reduce) {
   .crimson-field input,
   .crimson-submit,
+  .crimson-launcher,
+  .crimson-close,
   .crimson-form,
   .crimson-tab-indicator {
     transition: none !important;
+  }
+
+  .crimson-auth-gate.is-open .crimson-backdrop,
+  .crimson-auth-gate.is-open .crimson-shell {
+    animation: none !important;
   }
 }

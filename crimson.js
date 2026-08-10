@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "0.1.0";
+  var VERSION = "0.2.0";
   var SUPABASE_URL = "https://vrlmjdmkwyywzxkyhzld.supabase.co";
   var SUPABASE_ANON_KEY = "sb_publishable_vjG8bFzlqbuKZjjf_bGdTw_jUfLv7I9";
   var SUPABASE_CDN_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
@@ -27,12 +27,15 @@
   window.Crimson.resetAuth = function () {
     safeRemove(storageKey);
   };
+  window.Crimson.isGuest = function () {
+    return !isAuthenticated();
+  };
+  window.Crimson.open = function () {};
+  window.Crimson.close = function () {};
 
-  if (safeGet(storageKey)) {
+  if (isAuthenticated()) {
     return;
   }
-
-  lockPage();
 
   ready(function () {
     if (document.getElementById(ROOT_ID)) {
@@ -44,15 +47,25 @@
     var gate = renderGate();
     applyTheme(gate);
     document.body.appendChild(gate);
-    document.body.classList.add("crimson-auth-locked");
     bindGate(gate);
     updateCount(gate);
 
-    var firstInput = gate.querySelector("input[name='login-email']");
-    if (firstInput) {
-      firstInput.focus({ preventScroll: true });
-    }
+    window.Crimson.open = function () {
+      openGate(gate);
+    };
+    window.Crimson.close = function () {
+      closeGate(gate);
+    };
   });
+
+  function isAuthenticated() {
+    try {
+      var stored = JSON.parse(safeGet(storageKey) || "null");
+      return Boolean(stored && stored.authenticated);
+    } catch (error) {
+      return false;
+    }
+  }
 
   function ready(callback) {
     if (document.body) {
@@ -63,14 +76,7 @@
     document.addEventListener("DOMContentLoaded", callback, { once: true });
   }
 
-  function lockPage() {
-    document.documentElement.classList.add("crimson-auth-locked");
-    if (document.body) {
-      document.body.classList.add("crimson-auth-locked");
-    }
-  }
-
-  function unlockPage(userId) {
+  function completeAuth(userId) {
     safeSet(
       storageKey,
       JSON.stringify({
@@ -82,17 +88,14 @@
     );
 
     var gate = document.getElementById(ROOT_ID);
-    if (gate && gate._crimsonCleanup) {
-      gate._crimsonCleanup();
-    }
-
     if (gate) {
-      gate.remove();
-    }
+      closeGate(gate);
 
-    document.documentElement.classList.remove("crimson-auth-locked");
-    if (document.body) {
-      document.body.classList.remove("crimson-auth-locked");
+      if (gate._crimsonCleanup) {
+        gate._crimsonCleanup();
+      }
+
+      gate.remove();
     }
   }
 
@@ -124,23 +127,38 @@
     }
   }
 
+  function markContent() {
+    if (rawConfig.pfpURL) {
+      return (
+        '<img src="' +
+        escapeHtml(rawConfig.pfpURL) +
+        '" alt="' +
+        escapeHtml(siteName) +
+        '">'
+      );
+    }
+
+    return escapeHtml(siteName.charAt(0) || "C");
+  }
+
   function renderGate() {
     var gate = document.createElement("div");
     gate.id = ROOT_ID;
     gate.className = "crimson-auth-gate";
-    gate.setAttribute("data-crimson-mode", "login");
+    gate.setAttribute("data-crimson-mode", "signup");
     gate.innerHTML =
-      '<div class="crimson-backdrop" aria-hidden="true"></div>' +
+      '<button class="crimson-launcher" type="button" data-crimson-launcher aria-haspopup="dialog" aria-expanded="false" aria-label="Sign up or log in to ' +
+      escapeHtml(siteName) +
+      '">' +
+      markContent() +
+      "</button>" +
+      '<div class="crimson-modal" data-crimson-modal>' +
+      '<div class="crimson-backdrop" data-crimson-backdrop></div>' +
       '<section class="crimson-shell" role="dialog" aria-modal="true" aria-labelledby="crimson-title">' +
+      '  <button class="crimson-close" type="button" data-crimson-close aria-label="Close">&times;</button>' +
       '  <div class="crimson-intro">' +
       '    <div class="crimson-mark" aria-hidden="true">' +
-      (rawConfig.pfpURL
-        ? '<img src="' +
-          escapeHtml(rawConfig.pfpURL) +
-          '" alt="' +
-          escapeHtml(siteName) +
-          '">'
-        : escapeHtml(siteName.charAt(0) || "C")) +
+      markContent() +
       "</div>" +
       '    <p class="crimson-kicker"></p>' +
       '    <h1 id="crimson-title">' +
@@ -159,22 +177,24 @@
       '  <div class="crimson-panel">' +
       '    <div class="crimson-tabs" role="tablist" aria-label="Authentication options">' +
       '      <div class="crimson-tab-indicator" aria-hidden="true"></div>' +
-      '      <button class="crimson-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="crimson-login-form" data-crimson-tab="login">Login</button>' +
-      '      <button class="crimson-tab" type="button" role="tab" aria-selected="false" aria-controls="crimson-signup-form" data-crimson-tab="signup">Signup</button>' +
+      '      <button class="crimson-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="crimson-signup-form" data-crimson-tab="signup">Signup</button>' +
+      '      <button class="crimson-tab" type="button" role="tab" aria-selected="false" aria-controls="crimson-login-form" data-crimson-tab="login">Login</button>' +
       "    </div>" +
       '    <div class="crimson-forms">' +
-      '    <form class="crimson-form is-active" id="crimson-login-form" data-crimson-form="login" novalidate>' +
+      '    <form class="crimson-form is-active" id="crimson-signup-form" data-crimson-form="signup" novalidate>' +
+      '      <label class="crimson-field">Username<input name="signup-username" type="text" autocomplete="username" minlength="4" aria-describedby="crimson-username-hint" required></label>' +
+      '      <p class="crimson-hint" id="crimson-username-hint" data-crimson-hint="username"></p>' +
+      '      <label class="crimson-field">Email<input name="signup-email" type="email" autocomplete="email" aria-describedby="crimson-email-hint" required></label>' +
+      '      <p class="crimson-hint" id="crimson-email-hint" data-crimson-hint="email"></p>' +
+      '      <label class="crimson-field">Password<input name="signup-password" type="password" autocomplete="new-password" minlength="8" aria-describedby="crimson-password-hint" required></label>' +
+      '      <p class="crimson-hint" id="crimson-password-hint" data-crimson-hint="password"></p>' +
+      '      <button class="crimson-submit" type="submit" disabled>Create account</button>' +
+      '      <p class="crimson-message" role="status" aria-live="polite"></p>' +
+      "    </form>" +
+      '    <form class="crimson-form" id="crimson-login-form" data-crimson-form="login" novalidate>' +
       '      <label class="crimson-field">Email<input name="login-email" type="email" autocomplete="email" required></label>' +
       '      <label class="crimson-field">Password<input name="login-password" type="password" autocomplete="current-password" required></label>' +
       '      <button class="crimson-submit" type="submit">Log in</button>' +
-      '      <p class="crimson-message" role="status" aria-live="polite"></p>' +
-      "    </form>" +
-      '    <form class="crimson-form" id="crimson-signup-form" data-crimson-form="signup" novalidate>' +
-      '      <label class="crimson-field">Username<input name="signup-username" type="text" autocomplete="username" minlength="4" required></label>' +
-      '      <label class="crimson-field">Email<input name="signup-email" type="email" autocomplete="email" required></label>' +
-      '      <label class="crimson-field">Password<input name="signup-password" type="password" autocomplete="new-password" aria-describedby="crimson-password-help" required></label>' +
-      '      <p class="crimson-help" id="crimson-password-help">Use 8+ characters with upper, lower, number, and symbol.</p>' +
-      '      <button class="crimson-submit" type="submit">Create account</button>' +
       '      <p class="crimson-message" role="status" aria-live="polite"></p>' +
       "    </form>" +
       "    </div>" +
@@ -182,7 +202,8 @@
       (rawConfig.customHTML
         ? '<div class="crimson-extra">' + rawConfig.customHTML + "</div>"
         : "") +
-      "</section>";
+      "</section>" +
+      "</div>";
 
     return gate;
   }
@@ -222,12 +243,65 @@
     }
   }
 
+  function openGate(gate) {
+    if (gate.classList.contains("is-open")) {
+      return;
+    }
+
+    gate.classList.add("is-open");
+
+    var launcher = gate.querySelector("[data-crimson-launcher]");
+    if (launcher) {
+      launcher.setAttribute("aria-expanded", "true");
+    }
+
+    document.documentElement.classList.add("crimson-auth-locked");
+    document.body.classList.add("crimson-auth-locked");
+
+    var focusTarget = gate.querySelector("[data-crimson-form].is-active input");
+    if (focusTarget) {
+      focusTarget.focus({ preventScroll: true });
+    }
+  }
+
+  function closeGate(gate) {
+    if (!gate.classList.contains("is-open")) {
+      return;
+    }
+
+    gate.classList.remove("is-open");
+
+    document.documentElement.classList.remove("crimson-auth-locked");
+    document.body.classList.remove("crimson-auth-locked");
+
+    var launcher = gate.querySelector("[data-crimson-launcher]");
+    if (launcher) {
+      launcher.setAttribute("aria-expanded", "false");
+      launcher.focus({ preventScroll: true });
+    }
+  }
+
   function bindGate(gate) {
+    var launcher = gate.querySelector("[data-crimson-launcher]");
+    var backdrop = gate.querySelector("[data-crimson-backdrop]");
+    var closeButton = gate.querySelector("[data-crimson-close]");
     var tabs = Array.prototype.slice.call(
       gate.querySelectorAll("[data-crimson-tab]"),
     );
     var loginForm = gate.querySelector("[data-crimson-form='login']");
     var signupForm = gate.querySelector("[data-crimson-form='signup']");
+
+    launcher.addEventListener("click", function () {
+      openGate(gate);
+    });
+
+    backdrop.addEventListener("click", function () {
+      closeGate(gate);
+    });
+
+    closeButton.addEventListener("click", function () {
+      closeGate(gate);
+    });
 
     tabs.forEach(function (tab) {
       tab.addEventListener("click", function () {
@@ -245,10 +319,16 @@
       handleSignup(signupForm);
     });
 
+    bindSignupValidation(signupForm);
+
     function onKeydown(event) {
+      if (!gate.classList.contains("is-open")) {
+        return;
+      }
+
       if (event.key === "Escape") {
         event.preventDefault();
-        event.stopPropagation();
+        closeGate(gate);
         return;
       }
 
@@ -256,13 +336,80 @@
         return;
       }
 
-      trapFocus(gate, event);
+      trapFocus(gate.querySelector(".crimson-shell"), event);
     }
 
     document.addEventListener("keydown", onKeydown, true);
     gate._crimsonCleanup = function () {
       document.removeEventListener("keydown", onKeydown, true);
     };
+  }
+
+  function bindSignupValidation(form) {
+    var submit = form.querySelector(".crimson-submit");
+    var fields = {
+      username: {
+        input: form.elements["signup-username"],
+        validate: function (value) {
+          return isValidUsername(cleanUsername(value));
+        },
+        requirement: "At least 4 letters. Letters, numbers, _ . - only.",
+        valid: "✓ Username looks good.",
+      },
+      email: {
+        input: form.elements["signup-email"],
+        validate: function (value) {
+          return isValidEmail(normalizeEmail(value));
+        },
+        requirement: "Enter a valid email address.",
+        valid: "✓ Email looks good.",
+      },
+      password: {
+        input: form.elements["signup-password"],
+        validate: function (value) {
+          return isValidPassword(value);
+        },
+        requirement: "At least 8 characters.",
+        valid: "✓ Password meets requirements.",
+      },
+    };
+
+    function refresh() {
+      var allValid = true;
+
+      Object.keys(fields).forEach(function (key) {
+        var field = fields[key];
+        var value = field.input.value;
+        var state = !value
+          ? "empty"
+          : field.validate(value)
+            ? "valid"
+            : "invalid";
+
+        if (state !== "valid") {
+          allValid = false;
+        }
+
+        field.input.setAttribute("data-crimson-valid", state);
+
+        var hint = form.querySelector("[data-crimson-hint='" + key + "']");
+        if (hint) {
+          hint.setAttribute("data-crimson-state", state);
+          hint.textContent =
+            state === "valid" ? field.valid : field.requirement;
+        }
+      });
+
+      submit.disabled = !allValid;
+      return allValid;
+    }
+
+    Object.keys(fields).forEach(function (key) {
+      fields[key].input.addEventListener("input", refresh);
+    });
+
+    refresh();
+    form._crimsonRefresh = refresh;
   }
 
   function setMode(gate, mode) {
@@ -322,7 +469,7 @@
       }
 
       syncSiteProfileFromLogin(client, result.data.user, email);
-      unlockPage(result.data.user.id);
+      completeAuth(result.data.user.id);
     } catch (error) {
       setMessage(form, "Login failed. Check your email and password.", "error");
     } finally {
@@ -364,7 +511,7 @@
           username,
         );
         if (existingJoinedIdFromError) {
-          unlockPage(existingJoinedIdFromError);
+          completeAuth(existingJoinedIdFromError);
           return;
         }
 
@@ -375,7 +522,7 @@
       if (signup.data && signup.data.session && signup.data.user) {
         await applySession(client, signup.data.session);
         ensureSiteProfile(client, signup.data.user, username, email);
-        unlockPage(signup.data.user.id);
+        completeAuth(signup.data.user.id);
         return;
       }
 
@@ -386,7 +533,7 @@
           username,
         );
         if (existingJoinedId) {
-          unlockPage(existingJoinedId);
+          completeAuth(existingJoinedId);
           return;
         }
 
@@ -406,7 +553,7 @@
         username,
       );
       if (joinedUserId) {
-        unlockPage(joinedUserId);
+        completeAuth(joinedUserId);
         return;
       }
 
@@ -590,6 +737,10 @@
     });
 
     form.classList.toggle("is-loading", isBusy);
+
+    if (!isBusy && form._crimsonRefresh) {
+      form._crimsonRefresh();
+    }
   }
 
   function setMessage(form, message, type) {
@@ -602,10 +753,10 @@
     node.setAttribute("data-crimson-message", type || "");
   }
 
-  function trapFocus(gate, event) {
+  function trapFocus(shell, event) {
     var focusable = Array.prototype.slice
       .call(
-        gate.querySelectorAll(
+        shell.querySelectorAll(
           "button, input, select, textarea, a[href], [tabindex]:not([tabindex='-1'])",
         ),
       )
@@ -638,8 +789,8 @@
       return "Enter a valid email address.";
     }
 
-    if (!isStrongPassword(password)) {
-      return "Password must be 8+ characters with upper, lower, number, and symbol.";
+    if (!isValidPassword(password)) {
+      return "Password must be at least 8 characters.";
     }
 
     return "";
@@ -702,14 +853,8 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  function isStrongPassword(value) {
-    return (
-      value.length >= 8 &&
-      /[a-z]/.test(value) &&
-      /[A-Z]/.test(value) &&
-      /[0-9]/.test(value) &&
-      /[^A-Za-z0-9]/.test(value)
-    );
+  function isValidPassword(value) {
+    return value.length >= 8;
   }
 
   function isConfigured() {
