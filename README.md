@@ -2,8 +2,6 @@
 
 [![](https://data.jsdelivr.com/v1/package/gh/eldiiarbekbolotov/crimsonjs/badge)](https://www.jsdelivr.com/package/gh/eldiiarbekbolotov/crimsonjs)
 
-CrimsonJS is an embeddable auth-gatekeeping widget for client websites.
-
 ## Setup
 
 ```html
@@ -33,41 +31,4 @@ CrimsonJS is an embeddable auth-gatekeeping widget for client websites.
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/gh/eldiiarbekbolotov/crimsonjs@latest/js/crimson.min.js"></script>
-```
-
-## Standby mode
-
-The widget is currently **disabled** via the `ENABLED` switch at the top of `crimson.js`. Sites that embed it render nothing. To bring it back, set `ENABLED = true` and rebuild `js/crimson.min.js`. A single site can force it on for testing with `enabled: true` in `CrimsonConfig`.
-
-## How it works
-
-CrimsonJS no longer blocks the page. Visitors browse freely; a small circular button in the bottom-right corner opens the signup/login popup (signup is the default tab). The popup closes with the × button, the backdrop, or Escape. Once someone signs up or logs in, the button disappears for good on that browser.
-
-- Fields validate live: username, email, and password each show a green check when they meet the requirements, and Create account stays disabled until all three pass.
-- Passwords only need to be at least 8 characters.
-- `Crimson.open()` / `Crimson.close()` open and close the popup programmatically (e.g. from your own "Sign up" link). `Crimson.isGuest()` reports whether the visitor has an account. `Crimson.resetAuth()` clears the stored auth state.
-
-## Security setup (required)
-
-The Supabase anon key in this widget is public — anyone can read it in DevTools and query the database with it directly. Client-side code cannot prevent that; Row Level Security in the database is what does. Run [supabase-setup.sql](supabase-setup.sql) in your Supabase SQL editor. It makes every profile row invisible to everyone except its owner, exposes the member counter as a count-only function, and drops the global username uniqueness constraint.
-
-Also set the password policy in Supabase (Auth > Providers > Email) to minimum length 8 with no character requirements, so the server matches the widget.
-
-Invisible setup
-
-```html
-<script>
-  (function () {
-    const t = Date.now();
-    const urls = [
-      "https://cdn.jsdelivr.net/gh/EldiiarBekbolotov/CrimsonJS@latest/css/crimson.min.css",
-      "https://cdn.jsdelivr.net/gh/EldiiarBekbolotov/CrimsonJS@latest/js/crimson.min.js",
-    ];
-
-    urls.forEach((url) => {
-      const img = new Image();
-      img.src = `${url}?t=${t}`;
-    });
-  })();
-</script>
 ```
