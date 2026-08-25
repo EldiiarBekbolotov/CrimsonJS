@@ -3,6 +3,12 @@
   "use strict";
 
   var VERSION = "0.2.0";
+
+  // STANDBY SWITCH. While false the widget renders nothing on any site
+  // (no launcher, no popup, no stylesheet, no Supabase load). Set to true
+  // and rebuild js/crimson.min.js to bring it back everywhere at once.
+  // A single site can force it on for testing with CrimsonConfig.enabled = true.
+  var ENABLED = false;
   var SUPABASE_URL = "https://vrlmjdmkwyywzxkyhzld.supabase.co";
   var SUPABASE_ANON_KEY = "sb_publishable_vjG8bFzlqbuKZjjf_bGdTw_jUfLv7I9";
   var SUPABASE_CDN_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
@@ -32,6 +38,11 @@
   };
   window.Crimson.open = function () {};
   window.Crimson.close = function () {};
+  window.Crimson.enabled = ENABLED || rawConfig.enabled === true;
+
+  if (!window.Crimson.enabled) {
+    return;
+  }
 
   if (isAuthenticated()) {
     return;

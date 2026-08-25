@@ -35,6 +35,10 @@ CrimsonJS is an embeddable auth-gatekeeping widget for client websites.
 <script src="https://cdn.jsdelivr.net/gh/eldiiarbekbolotov/crimsonjs@latest/js/crimson.min.js"></script>
 ```
 
+## Standby mode
+
+The widget is currently **disabled** via the `ENABLED` switch at the top of `crimson.js`. Sites that embed it render nothing. To bring it back, set `ENABLED = true` and rebuild `js/crimson.min.js`. A single site can force it on for testing with `enabled: true` in `CrimsonConfig`.
+
 ## How it works
 
 CrimsonJS no longer blocks the page. Visitors browse freely; a small circular button in the bottom-right corner opens the signup/login popup (signup is the default tab). The popup closes with the × button, the backdrop, or Escape. Once someone signs up or logs in, the button disappears for good on that browser.
